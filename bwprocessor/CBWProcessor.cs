@@ -108,7 +108,7 @@ public class CBWProcessor : BWProcessor
 		if (node.Name != "contrast")
 			throw new ApplicationException ("Could not find contrast node");
 		
-		Gegl.Curve curve = processor.ContrastCurve;
+		Curve curve = processor.ContrastCurve;
 		while (curve.NumPoints () > 0)
 			curve.RemovePointIndex (0);
 

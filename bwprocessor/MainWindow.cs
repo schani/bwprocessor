@@ -50,9 +50,9 @@ public partial class MainWindow: Gtk.Window
 	{
 		Build ();
 		
-		Gegl.Global.Init();
+		//Gegl.Global.Init();
 
-		curveWidget = new CurveWidget (new Gegl.Curve (0.0f, 1.0f));
+		curveWidget = new CurveWidget (new Curve (0.0f, 1.0f));
 		curveWidget.CurveChanged += new CurveChangedEventHandler(CurveChanged);
 
 		controlsVBox.Remove(curveDummy);

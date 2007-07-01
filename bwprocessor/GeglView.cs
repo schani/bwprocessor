@@ -63,7 +63,7 @@ namespace Gegl
 
 		public void NodeUpdated ()
 		{
-			Repaint(Allocation.Width, Allocation.Height);
+			QueueDraw ();
 		}
 		
         public BWProcessor Processor {
@@ -90,9 +90,7 @@ namespace Gegl
 
         public void Repaint (int width, int height)
         {
-            Gegl.Rectangle processor_rect = new Gegl.Rectangle();
-            processor_rect.Set(x, y, (uint) (width / scale), (uint) (height/scale));
-			HandleNodeComputed (null, processor_rect);
+			QueueDraw ();
         }
 
         public void ZoomTo (float new_zoom)
@@ -149,16 +147,6 @@ namespace Gegl
             }
 
             args.RetVal = false;  // returning false here, allows cairo to hook in and draw more
-        }
-
-        private void HandleNodeComputed(object o, Gegl.Rectangle rectangle)
-        {
-            rectangle.X = (int) (Scale * (rectangle.X - X));
-            rectangle.Y = (int) (Scale * (rectangle.Y - Y));
-            rectangle.Width = (int) Math.Ceiling(rectangle.Width * Scale);
-            rectangle.Height = (int) Math.Ceiling(rectangle.Height * Scale);
-
-            QueueDrawArea(rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height);
         }
 		
 		private void MouseToImageCoords (double mouseX, double mouseY, out int pixelX, out int pixelY)

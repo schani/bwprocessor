@@ -10,7 +10,7 @@ using Gegl;
 public abstract class BWProcessor
 {
 	float red, green, blue;
-	protected Gegl.Curve contrastCurve; 
+	protected Curve contrastCurve; 
 	float tintHue, tintAmount;
 
 	protected BWProcessor ()
@@ -19,7 +19,7 @@ public abstract class BWProcessor
 		green = 0.3f;
 		blue = 0.3f;
 
-		contrastCurve = new Gegl.Curve (0.0f, 1.0f);
+		contrastCurve = new Curve (0.0f, 1.0f);
 		contrastCurve.AddPoint (0.0f, 0.0f);
 		contrastCurve.AddPoint (1.0f, 1.0f);
 		
@@ -47,7 +47,7 @@ public abstract class BWProcessor
 		set { blue = value; ParametersChanged (); }
 	}
 
-	public virtual Gegl.Curve ContrastCurve {
+	public virtual Curve ContrastCurve {
 		get { return contrastCurve; }
 	}
 	

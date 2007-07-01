@@ -5,153 +5,152 @@ using Gdk;
 using GLib;
 using Gnome;
 using System.Diagnostics;
-using Gegl;
-
-class MyBPath : Gnome.CanvasBpath
-{
-	public MyBPath (CanvasGroup cg) : base(cg) {}
-
- 	public void SetPathDef (CanvasPathDef path_def)
-	{
-		GLib.Value val = new GLib.Value(path_def, "GnomeCanvasPathDef");
-		SetProperty("bpath", val);
-	}
-}
-
-public class CurveMarker : IComparable
-{
-	private double x, y;
-	protected CanvasRect rect;
-	protected CurveWidget curveWidget;
-	private bool active;
-
-	public CurveMarker (double _x, double _y, CurveWidget _curveWidget, string color)
-	{
-		x = _x;
-		y = _y;
-		curveWidget = _curveWidget;
-		rect = new CanvasRect(curveWidget.Root());
-		rect.FillColor = color;
-		rect.OutlineColor = color;
-		rect.WidthUnits = 0.0;
-		SetRectBounds();
-		active = true;
-	}
-
-	void SetRectBounds ()
-	{
-		rect.X1 = x - 0.01;
-		rect.Y1 = (1 - y) - 0.01;
-		rect.X2 = x + 0.01;
-		rect.Y2 = (1 - y) + 0.01;
-	}
-	
-	public double X {
-		get { return x; }
-		set {
-			x = value;
-			SetRectBounds();
-		}
-	}
-
-	public double Y {
-		get { return y; }
-		set {
-			y = value;
-			SetRectBounds();
-		}
-	}
-	
-	public bool Active {
-		get { return active; }
-		set {
-			active = value;
-			if (active)
-				rect.Show();
-			else
-				rect.Hide();
-		}
-	}
-	
-	public int CompareTo (object o)
-	{
-		CurveMarker p = (CurveMarker)o;
-		
-		if (x < p.x)
-			return -1;
-		if (x > p.x)
-			return 1;
-		return 0;
-	}
-}
-
-public class CurvePoint : CurveMarker
-{
-	double dragY;
-	double rememberX, rememberY;
-
-	public CurvePoint (double _x, double _y, CurveWidget _curveWidget) : base(_x, _y, _curveWidget, "black")
-	{
-		rect.CanvasEvent += new Gnome.CanvasEventHandler (RectEvent);
-	}
-
-	void RectEvent (object obj, Gnome.CanvasEventArgs args)
-	{
-		EventButton ev = new EventButton(args.Event.Handle);
-		
-		switch (ev.Type)
-		{
-		case EventType.ButtonPress :
-			if (ev.Button == 1) {
-			rememberX = ev.X;
-			rememberY = ev.Y;
-			dragY = Y;
-			args.RetVal = true;
-			return;
-		}
-			break;
-		case EventType.MotionNotify :
-			Gdk.ModifierType state = (Gdk.ModifierType)ev.State;
-			if ((state & Gdk.ModifierType.Button1Mask) != 0) {
-			//Console.WriteLine("old: " + rememberX + " " + rememberY + " new: " + ev.X + " " + ev.Y);
-			X += ev.X - rememberX;
-			dragY -= ev.Y - rememberY;
-			Y = Math.Min(Math.Max(dragY, 0.0), 1.0);
-			rememberX = ev.X;
-			rememberY = ev.Y;
-			if (Active && (X < 0.0 || X > 1.0)) {
-				Console.WriteLine("removing");
-				curveWidget.CurvePointRemoved(this);
-				Active = false;
-			} else if (!Active && (X >= 0.0 && X <= 1.0)) {
-				curveWidget.CurvePointAdded(this);
-				Console.WriteLine("adding");
-				Active = true;
-			} else if (Active) {
-				Console.WriteLine("updating");
-				curveWidget.CurvePointChanged(this);
-			}
-			args.RetVal = true;
-			return;
-		}
-			break;
-		case EventType.ButtonRelease :
-			if (!Active) {
-			//rect.Dispose();
-		}
-			break;
-		}
-		
-		args.RetVal = false;
-		return;
-	}
-}
 
 public delegate void CurveChangedEventHandler (object source);
 
 public class CurveWidget : Gnome.Canvas
 {
-	private Gegl.Curve curve;
+	class MyBPath : Gnome.CanvasBpath
+	{
+		public MyBPath (CanvasGroup cg) : base(cg) {}
+
+	 	public void SetPathDef (CanvasPathDef path_def)
+		{
+			GLib.Value val = new GLib.Value(path_def, "GnomeCanvasPathDef");
+			SetProperty("bpath", val);
+		}
+	}
+
+	class CurveMarker : IComparable
+	{
+		private double x, y;
+		protected CanvasRect rect;
+		protected CurveWidget curveWidget;
+		private bool active;
+
+		public CurveMarker (double _x, double _y, CurveWidget _curveWidget, string color)
+		{
+			x = _x;
+			y = _y;
+			curveWidget = _curveWidget;
+			rect = new CanvasRect(curveWidget.Root());
+			rect.FillColor = color;
+			rect.OutlineColor = color;
+			rect.WidthUnits = 0.0;
+			SetRectBounds();
+			active = true;
+		}
+
+		void SetRectBounds ()
+		{
+			rect.X1 = x - 0.01;
+			rect.Y1 = (1 - y) - 0.01;
+			rect.X2 = x + 0.01;
+			rect.Y2 = (1 - y) + 0.01;
+		}
+		
+		public double X {
+			get { return x; }
+			set {
+				x = value;
+				SetRectBounds();
+			}
+		}
+
+		public double Y {
+			get { return y; }
+			set {
+				y = value;
+				SetRectBounds();
+			}
+		}
+		
+		public bool Active {
+			get { return active; }
+			set {
+				active = value;
+				if (active)
+					rect.Show();
+				else
+					rect.Hide();
+			}
+		}
+		
+		public int CompareTo (object o)
+		{
+			CurveMarker p = (CurveMarker)o;
+			
+			if (x < p.x)
+				return -1;
+			if (x > p.x)
+				return 1;
+			return 0;
+		}
+	}
+
+	class CurvePoint : CurveMarker
+	{
+		double dragY;
+		double rememberX, rememberY;
+
+		public CurvePoint (double _x, double _y, CurveWidget _curveWidget) : base(_x, _y, _curveWidget, "black")
+		{
+			rect.CanvasEvent += new Gnome.CanvasEventHandler (RectEvent);
+		}
+
+		void RectEvent (object obj, Gnome.CanvasEventArgs args)
+		{
+			EventButton ev = new EventButton(args.Event.Handle);
+			
+			switch (ev.Type)
+			{
+			case EventType.ButtonPress :
+				if (ev.Button == 1) {
+				rememberX = ev.X;
+				rememberY = ev.Y;
+				dragY = Y;
+				args.RetVal = true;
+				return;
+			}
+				break;
+			case EventType.MotionNotify :
+				Gdk.ModifierType state = (Gdk.ModifierType)ev.State;
+				if ((state & Gdk.ModifierType.Button1Mask) != 0) {
+				//Console.WriteLine("old: " + rememberX + " " + rememberY + " new: " + ev.X + " " + ev.Y);
+				X += ev.X - rememberX;
+				dragY -= ev.Y - rememberY;
+				Y = Math.Min(Math.Max(dragY, 0.0), 1.0);
+				rememberX = ev.X;
+				rememberY = ev.Y;
+				if (Active && (X < 0.0 || X > 1.0)) {
+					Console.WriteLine("removing");
+					curveWidget.CurvePointRemoved(this);
+					Active = false;
+				} else if (!Active && (X >= 0.0 && X <= 1.0)) {
+					curveWidget.CurvePointAdded(this);
+					Console.WriteLine("adding");
+					Active = true;
+				} else if (Active) {
+					Console.WriteLine("updating");
+					curveWidget.CurvePointChanged(this);
+				}
+				args.RetVal = true;
+				return;
+			}
+				break;
+			case EventType.ButtonRelease :
+				if (!Active) {
+				//rect.Dispose();
+			}
+				break;
+			}
+			
+			args.RetVal = false;
+			return;
+		}
+	}
+
+	private Curve curve;
 	private MyBPath bpath;
 	private ArrayList points;
 	public event CurveChangedEventHandler CurveChanged;
@@ -162,7 +161,7 @@ public class CurveWidget : Gnome.Canvas
 		set { marker.Active = value; }
 	}
 	
-	public void CurvePointAdded (CurvePoint p)
+	void CurvePointAdded (CurvePoint p)
 	{
 		curve.AddPoint((float)p.X, (float)p.Y);
 		points.Add(p);
@@ -203,7 +202,7 @@ public class CurveWidget : Gnome.Canvas
 		line.FillColor = "grey";
 	}
 
-	public CurveWidget (Gegl.Curve _curve) : base()
+	public CurveWidget (Curve _curve) : base()
 	{
 		PixelsPerUnit = 300;
 		
@@ -289,7 +288,7 @@ public class CurveWidget : Gnome.Canvas
 		}
 	}
 
-	public int IndexOfPoint (CurvePoint p)
+	int IndexOfPoint (CurvePoint p)
 	{
 		for (int i = 0; i < points.Count; ++i)
 			if (points[i] == p)
@@ -305,7 +304,7 @@ public class CurveWidget : Gnome.Canvas
 			CurveChanged (this);
 	}
 
-	public void CurvePointChanged (CurvePoint p)
+	void CurvePointChanged (CurvePoint p)
 	{
 		int index = IndexOfPoint(p);
 
@@ -313,7 +312,7 @@ public class CurveWidget : Gnome.Canvas
 		ProcessCurveChange();
 	}
 	
-	public void CurvePointRemoved (CurvePoint p)
+	void CurvePointRemoved (CurvePoint p)
 	{
 		int index = IndexOfPoint(p);
 		
@@ -322,7 +321,7 @@ public class CurveWidget : Gnome.Canvas
 		ProcessCurveChange();
 	}
 	
-	public Gegl.Curve Curve {
+	public Curve Curve {
 		get { return curve; }
 		set {
 			curve = value;
