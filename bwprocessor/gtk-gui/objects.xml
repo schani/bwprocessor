@@ -1,0 +1,23 @@
+<objects>
+  <object type="CurveWidget" palette-category="widget" allow-children="false" base-type="Gtk.Container">
+    <itemgroups>
+      <itemgroup label="Canvas Properties">
+        <property name="PixelsPerUnit" />
+        <property name="CenterScrollRegion" />
+        <property name="Height" />
+        <property name="Vadjustment" />
+        <property name="Hadjustment" />
+        <property name="Width" />
+        <property name="MarkerActive" />
+      </itemgroup>
+    </itemgroups>
+    <signals>
+      <itemgroup label="Canvas Signals">
+        <signal name="RenderBackground" />
+        <signal name="DrawBackground" />
+        <signal name="ScrollAdjustmentsSet" />
+        <signal name="CurveChanged" />
+      </itemgroup>
+    </signals>
+  </object>
+</objects>
