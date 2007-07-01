@@ -58,7 +58,7 @@ public partial class MainWindow: Gtk.Window
 		controlsVBox.Remove(curveDummy);
 		controlsVBox.PackEnd(curveWidget, true, true, 0);
 
-		NewProcessorWithImage ("/home/schani/Desktop/petra.jpg");
+		NewProcessorWithImage ("/home/schani/Desktop/petraa.jpg");
 
 		geglView = new Gegl.View(processor);
 		geglView.PixelQueried += new PixelQueriedEventHandler(PixelQueried);
@@ -235,11 +235,11 @@ public partial class MainWindow: Gtk.Window
 
 	protected virtual void DoZoomIn (object sender, System.EventArgs e)
 	{
-		geglView.ZoomTo((float)(geglView.Scale * 2.0));
+		geglView.ZoomTo((float)(geglView.Scale * 1.5));
 	}
 	
 	protected virtual void DoZoomOut (object sender, System.EventArgs e)
 	{
-		geglView.ZoomTo((float)(geglView.Scale / 2.0));
+		geglView.ZoomTo((float)(geglView.Scale / 1.5));
 	}
 }

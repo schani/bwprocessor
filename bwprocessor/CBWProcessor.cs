@@ -10,14 +10,14 @@ using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Xml;
 
-struct ContrastLayer
-{
-	public ushort[] curve;
-	public ushort[] mask;
-}
-
 public class CBWProcessor : BWProcessor
 {
+	struct ContrastLayer
+	{
+		public ushort[] curve;
+		public ushort[] mask;
+	}
+
 	string imageFilename;
 	ushort[] imageData;
 	int width, height;
@@ -30,7 +30,13 @@ public class CBWProcessor : BWProcessor
 	{
 		imageFilename = filename;
 
-		Bitmap bmp = new Bitmap(filename);
+		Bitmap bmp;
+
+		try {
+			bmp = new Bitmap (filename);
+		} catch (Exception) {
+			bmp = new Bitmap (256, 256);
+		}
 
 		width = bmp.Width;
 		height = bmp.Height;
